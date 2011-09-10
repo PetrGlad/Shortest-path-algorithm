@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+
+group = 'petrglad'
+version = '0.1'
+sourceCompatibility = 1.6
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	
+    manifest {
+        attributes 'Implementation-Title': 'Shortest path algorithm',
+                   'Implementation-Version': version,
+                   'Main-Class': 'petrglad.labyrinth.Main'
+    }
+}
+
+dependencies {
+	compile 'com.google.guava:guava:r09';
+	
+    testCompile 'org.testng:testng:6.+'    
+}
+
