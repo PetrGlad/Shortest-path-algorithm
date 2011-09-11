@@ -11,8 +11,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * Algorithm that finds path through 2d labyrinth. Labyrinth walls are defined
- * by line segments.
+ * Algorithm that finds shortest path through 2d labyrinth. Labyrinth walls are
+ * defined by line segments.
  */
 public class Labyrinth {
 
@@ -47,12 +47,22 @@ public class Labyrinth {
      * @return null if no path found or sequence of lines connecting 'from' to
      *         'to'
      */
-    public Collection<Line2D> findLinePath(final Point2D from, final Point2D to) {
+    public Iterable<Line2D> findLinePath(final Point2D from, final Point2D to) {
         Step result = findPath(from, to);
         if (result == null)
             return null;
         else
             return stepToLines(result);
+    }
+
+    private Iterable<Line2D> stepToLines(Step result) {
+        final List<Line2D> lines = Lists.newLinkedList();
+        Step step = result;
+        while (step != null && step.back != null) {
+            lines.add(0, new Line2D.Double(step.back.point, step.point));
+            step = step.back;
+        }
+        return lines;
     }
 
     private Step findPath(final Point2D from, final Point2D to) {
@@ -69,18 +79,7 @@ public class Labyrinth {
                 }
             }
         }
-        Step result = bestPaths.get(to);
-        return result;
-    }
-
-    private Collection<Line2D> stepToLines(Step result) {
-        final List<Line2D> lines = Lists.newLinkedList();
-        Step step = result;
-        while (step != null && step.back != null) {
-            lines.add(0, new Line2D.Double(step.back.point, step.point));
-            step = step.back;
-        }
-        return lines;
+        return bestPaths.get(to);
     }
 
     /**

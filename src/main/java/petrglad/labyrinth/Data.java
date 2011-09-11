@@ -38,7 +38,7 @@ public class Data {
         return Double.parseDouble(fields.next());
     }
 
-    public static void storeLines(Writer out, Collection<Line2D> walls) {
+    public static void storeLines(Writer out, Iterable<Line2D> walls) {
         PrintWriter printWriter = new PrintWriter(out);
         for (Line2D line : walls) {
             printWriter.println(line.getX1() + ", " + line.getY1()

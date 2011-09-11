@@ -15,12 +15,14 @@ public class Main {
             System.exit(1);
         }
         Iterable<Line2D> walls = Data.loadLines(new FileReader(args[0]));
-        OutputStreamWriter out = new OutputStreamWriter(System.out);
-        Data.storeLines(out,
-                new Labyrinth(walls).findLinePath(
-                        makePoint(args[1], args[2]),
-                        makePoint(args[3], args[4])));
-        out.flush();
+        Iterable<Line2D> foundPath = new Labyrinth(walls).findLinePath(
+                makePoint(args[1], args[2]),
+                makePoint(args[3], args[4]));
+        if (foundPath != null) {
+            OutputStreamWriter out = new OutputStreamWriter(System.out);
+            Data.storeLines(out, foundPath);
+            out.flush();
+        }
     }
 
     private static java.awt.geom.Point2D.Double makePoint(String x, String y) {
