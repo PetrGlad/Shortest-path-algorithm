@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,12 +13,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -59,6 +62,8 @@ public class Board extends JComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -79,18 +84,42 @@ public class Board extends JComponent {
         repaint();
     }
 
+    protected void clean() {
+        shapes.clear();
+        addShapes(walls, WALL_COLOR);
+    }
+
+    protected void addWall(Line2D wall) {
+        walls.add(wall);
+        clean();
+    }
+
+    private void addSolution(Point2D fromPoint, Point2D toPoint) {
+        final Iterable<Line2D> path = new Labyrinth(walls).findLinePath(fromPoint, toPoint);
+        if (path == null) {
+            mainFrame.setTitle("No path");
+            addShapes(Lists.newArrayList(new Line2D.Double(fromPoint, toPoint)), Color.RED);
+        } else
+            addShapes(path, PATH_COLOR);
+    }
+
     public static void main(String args[]) throws IOException {
         final JFrame mainFrame = new JFrame("Shortest path");
 
-        String dataFile = DEFAULT_WALLS_FILE;
-        if (args.length > 0)
-            dataFile = args[0];
-        final Board board = new Board(mainFrame, Data.loadLines(new FileReader(dataFile)));
+        File dataFile = new File(args.length > 0 ? args[0] : DEFAULT_WALLS_FILE);
+        final Board board = new Board(mainFrame,
+                dataFile.isFile() ?
+                        Data.loadLines(new FileReader(dataFile))
+                        : new LinkedList<Line2D>());
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.getContentPane().add(board);
         mainFrame.pack();
+        addListeners(mainFrame, board);
         mainFrame.setVisible(true);
+    }
+
+    private static void addListeners(final JFrame mainFrame, final Board board) {
         mainFrame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -128,18 +157,6 @@ public class Board extends JComponent {
 
             @Override
             public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
                 Point point = e.getPoint();
                 if (e.isControlDown()) {
                     if (e.getButton() == MouseEvent.BUTTON1) {
@@ -165,25 +182,18 @@ public class Board extends JComponent {
                         board.addSolution(fromPoint, toPoint);
                 }
             }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
         });
-    }
-
-    protected void clean() {
-        shapes.clear();
-        addShapes(walls, WALL_COLOR);
-    }
-
-    protected void addWall(Line2D wall) {
-        walls.add(wall);
-        clean();
-    }
-
-    private void addSolution(Point2D fromPoint, Point2D toPoint) {
-        final Iterable<Line2D> path = new Labyrinth(walls).findLinePath(fromPoint, toPoint);
-        if (path == null) {
-            mainFrame.setTitle("No path");
-            addShapes(Lists.newArrayList(new Line2D.Double(fromPoint, toPoint)), Color.RED);
-        } else
-            addShapes(path, PATH_COLOR);
     }
 }
