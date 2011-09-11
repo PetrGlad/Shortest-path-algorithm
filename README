@@ -1,0 +1,34 @@
+Shortest path 2D algorithm. Walls are defined as set of line segments.
+Points at wall ends are passable.
+
+To build:
+	gradle build
+
+Data files are CSV describing one 2d-line per line:
+ x1, y1, x2, y2
+ 
+
+To run batch version: 
+	java -jar build/libs/labyrinth-0.1.jar
+	
+Example:
+ java -jar build/libs/labyrinth-0.1.jar data/box.txt 1 1 70 70
+Output:
+ 1.0, 1.0, 10.0, 10.0
+ 10.0, 10.0, 50.0, 50.0
+ 50.0, 50.0, 70.0, 70.0
+
+Example:
+	java -jar build/libs/labyrinth-0.1.jar data/waterproof-box.txt 30 30 70 70
+No output (no path found).	
+
+
+To run GUI version:
+	java -cp build/libs/labyrinth-0.1.jar petrglad.labyrinth.Board data/test-data1.txt
+(data file is optional)
+
+Keys:
+	Mouse_left, Mouse_right - set start and end point
+	Mouse_middle - clear paths
+	Ctrl+Mouse_left - set new walls  
+	Ctrl+S - save walls to file "saved-walls.txt"	
